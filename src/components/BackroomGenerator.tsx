@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -183,7 +184,7 @@ export function BackroomGenerator({ onLevelGenerated }: BackroomGeneratorProps) 
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-2xl">{currentLevel.name}</CardTitle>
-                <CardDescription>Based on: "{currentLevel.prompt}"</CardDescription>
+                <CardDescription>Based on: &ldquo;{currentLevel.prompt}&rdquo;</CardDescription>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -221,15 +222,17 @@ export function BackroomGenerator({ onLevelGenerated }: BackroomGeneratorProps) 
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Image */}
-            {currentLevel.imageUrl && (
-              <div className="w-full">
-                <img
-                  src={currentLevel.imageUrl}
-                  alt={currentLevel.name}
-                  className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
-                />
-              </div>
-            )}
+                         {currentLevel.imageUrl && (
+               <div className="w-full">
+                 <Image
+                   src={currentLevel.imageUrl}
+                   alt={currentLevel.name}
+                   width={1024}
+                   height={1024}
+                   className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
+                 />
+               </div>
+             )}
 
             {/* Description */}
             <div>

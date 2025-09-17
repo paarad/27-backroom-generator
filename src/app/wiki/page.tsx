@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -116,9 +117,11 @@ export default function WikiPage() {
                 {/* Level Image */}
                 {level.imageUrl && (
                   <div className="aspect-video overflow-hidden">
-                    <img
+                    <Image
                       src={level.imageUrl}
                       alt={level.name}
+                      width={400}
+                      height={225}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -127,7 +130,7 @@ export default function WikiPage() {
                 <CardHeader>
                   <CardTitle className="text-xl">{level.name}</CardTitle>
                   <CardDescription>
-                    Based on: "{level.prompt}"
+                    Based on: &ldquo;{level.prompt}&rdquo;
                   </CardDescription>
                 </CardHeader>
                 
