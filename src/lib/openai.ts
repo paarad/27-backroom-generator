@@ -22,7 +22,9 @@ Given a user's prompt (object, phrase, or vibe), create a detailed backrooms lev
 
 Make it genuinely unsettling but not gratuitously gory. Focus on psychological horror, liminal spaces, and the uncanny.
 
-Return ONLY valid JSON in this exact format:
+IMPORTANT: Return ONLY valid JSON without any markdown formatting, code blocks, or additional text. Do not wrap your response in backticks or code formatting.
+
+Return in this exact format:
 {
   "levelNumber": number,
   "name": "Level X: The [Name]",
@@ -48,8 +50,22 @@ Return ONLY valid JSON in this exact format:
       throw new Error('No content generated');
     }
 
+    // Clean the response by removing markdown code blocks if present
+    const cleanedContent = content
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*$/g, '')
+      .trim();
+
     // Parse the JSON response
-    const levelData = JSON.parse(content);
+    let levelData;
+    try {
+      levelData = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Raw content:', content);
+      console.error('Cleaned content:', cleanedContent);
+      throw new Error('Failed to parse AI response as JSON');
+    }
     
     return {
       ...levelData,
