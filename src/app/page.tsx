@@ -181,15 +181,15 @@ export default function Home() {
 
         {/* Main Application Window */}
         {showMainWindow && (
-          <div className="flex justify-center items-start pt-8">
+          <div className="flex justify-center items-start pt-8 relative z-10">
             <Window98 
               title="BACKROOM-GEN.EXE - Spatial Anomaly Generator"
-              className="w-full max-w-6xl"
+              className="w-full max-w-6xl !bg-white relative z-10"
               minimizable
               maximizable
               onClose={() => setShowMainWindow(false)}
             >
-              <div className="bg-gray-200 text-black">
+              <div className="bg-white text-black">
                 {/* Menu Bar */}
                 <div className="border-b border-gray-400 bg-gray-100 px-2 py-1">
                   <div className="flex space-x-4 text-xs">
@@ -212,7 +212,7 @@ export default function Home() {
                 </div>
 
                 {/* Main Content */}
-                <div className="p-4">
+                <div className="p-4 bg-white">
                   <BackroomGenerator />
                 </div>
               </div>
@@ -222,10 +222,10 @@ export default function Home() {
 
         {/* Wiki Window */}
         {showWikiWindow && (
-          <div className="flex justify-center items-start pt-16" style={{ left: '50px', position: 'relative' }}>
+          <div className="flex justify-center items-start pt-16 relative z-10" style={{ left: '50px' }}>
             <Window98 
               title="BACKROOMS_DOCUMENTATION.HTM - Internet Explorer"
-              className="w-full max-w-5xl"
+              className="w-full max-w-5xl relative z-10"
               minimizable
               maximizable
               onClose={() => setShowWikiWindow(false)}
