@@ -29,7 +29,7 @@ export interface DatabaseLevel {
 export async function saveLevel(level: BackroomLevel, authorName?: string): Promise<string> {
   try {
     const { data, error } = await supabase
-      .from('backroom_levels')
+      .from('backroom_generator_levels')
       .insert({
         level_number: level.levelNumber,
         name: level.name,
@@ -59,7 +59,7 @@ export async function saveLevel(level: BackroomLevel, authorName?: string): Prom
 export async function getAllLevels(): Promise<BackroomLevel[]> {
   try {
     const { data, error } = await supabase
-      .from('backroom_levels')
+      .from('backroom_generator_levels')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -78,7 +78,7 @@ export async function getAllLevels(): Promise<BackroomLevel[]> {
 export async function getLevel(id: string): Promise<BackroomLevel | null> {
   try {
     const { data, error } = await supabase
-      .from('backroom_levels')
+      .from('backroom_generator_levels')
       .select('*')
       .eq('id', id)
       .single();
