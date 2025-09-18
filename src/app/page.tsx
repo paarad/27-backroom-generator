@@ -98,7 +98,7 @@ export default function Home() {
         }} />
       </div> */}
       
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-40">
         <div className="w-full h-full" style={{
           backgroundImage: `url('/br-bg3.jpg')`,
           backgroundSize: 'cover',
@@ -108,7 +108,7 @@ export default function Home() {
       </div>
       
       {/* Desktop Background Pattern */}
-      <div className="absolute inset-0 opacity-40">
+      <div className="absolute inset-0 opacity-30">
         <div className="w-full h-full" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2300ff00' fill-opacity='0.1'%3E%3Cpath d='M20 20.5V18H0v-2h20v2.5zm0 2V23H0v-2h20v-.5zM0 18h20v-2H0v2z'/%3E%3C/g%3E%3C/svg%3E")`,
         }} />
@@ -264,8 +264,8 @@ export default function Home() {
                   <section>
                     <h2 className="text-lg font-bold mb-3 border-b border-gray-400">ENTRY CONDITIONS</h2>
                     <p>
-                      If you're not careful and you noclip out of reality in the wrong areas, 
-                      you'll end up in the Backrooms, where it's nothing but the smell of old 
+                      If you&apos;re not careful and you noclip out of reality in the wrong areas, 
+                      you&apos;ll end up in the Backrooms, where it&apos;s nothing but the smell of old 
                       moist carpet, the madness of mono-yellow, and endless background noise of 
                       fluorescent lights at maximum hum-buzz, and God save you if you hear something 
                       wandering around nearby, because it sure as hell has heard you...
@@ -312,8 +312,8 @@ export default function Home() {
                     <div className="bg-blue-50 border border-blue-300 p-4">
                       <p className="mb-2 font-bold">Dr. █████, Site-██:</p>
                       <p className="mb-2">
-                        "The Backrooms appear to follow non-Euclidean geometry. Standard navigation 
-                        methods fail consistently. Subjects report feeling watched despite no visible entities."
+                        &quot;The Backrooms appear to follow non-Euclidean geometry. Standard navigation 
+                        methods fail consistently. Subjects report feeling watched despite no visible entities.&quot;
                       </p>
                       <p className="text-xs text-gray-600">
                         [REDACTED] - [DATA EXPUNGED] - [CLASSIFIED]

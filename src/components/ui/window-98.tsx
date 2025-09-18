@@ -10,7 +10,6 @@ interface Window98Props {
   onClose?: () => void;
   minimizable?: boolean;
   maximizable?: boolean;
-  draggable?: boolean;
 }
 
 export function Window98({ 
@@ -19,8 +18,7 @@ export function Window98({
   className = "",
   onClose,
   minimizable = false,
-  maximizable = false,
-  draggable = false
+  maximizable = false
 }: Window98Props) {
   const [isMinimized, setIsMinimized] = useState(false);
 
