@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { BackroomGenerator } from '@/components/BackroomGenerator';
 import { Window98 } from '@/components/ui/window-98';
+import { BackroomLevel } from '@/types/backroom';
 
 export default function Home() {
   const [showBootScreen, setShowBootScreen] = useState(true);
@@ -10,8 +11,16 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState('');
   const [showMainWindow, setShowMainWindow] = useState(true);
   const [showWikiWindow, setShowWikiWindow] = useState(false);
+  const [showLevelsWindow, setShowLevelsWindow] = useState(false);
+  const [savedLevels, setSavedLevels] = useState<BackroomLevel[]>([]);
+  const [levelsLoading, setLevelsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [hasGeneratedLevel, setHasGeneratedLevel] = useState(false);
 
   useEffect(() => {
+    // Set mounted to true after hydration
+    setMounted(true);
+    
     // Update time every second
     const timer = setInterval(() => {
       const now = new Date();
@@ -21,6 +30,14 @@ export default function Home() {
         minute: '2-digit'
       }));
     }, 1000);
+
+    // Set initial time immediately
+    const now = new Date();
+    setCurrentTime(now.toLocaleTimeString('en-US', { 
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
+    }));
 
     // Boot sequence
     const bootTimer = setInterval(() => {
@@ -40,9 +57,31 @@ export default function Home() {
     };
   }, []);
 
+  const fetchLevels = async () => {
+    setLevelsLoading(true);
+    try {
+      const response = await fetch('/api/levels');
+      const data = await response.json();
+      if (data.success) {
+        setSavedLevels(data.levels);
+      }
+    } catch (error) {
+      console.error('Error fetching levels:', error);
+    } finally {
+      setLevelsLoading(false);
+    }
+  };
+
+  // Fetch levels when the levels window is opened
+  useEffect(() => {
+    if (showLevelsWindow) {
+      fetchLevels();
+    }
+  }, [showLevelsWindow]);
+
   if (showBootScreen) {
     return (
-      <div className="boot-screen min-h-screen flex flex-col justify-center items-start pl-8 space-y-4">
+      <div className="boot-screen min-h-screen flex flex-col justify-center items-center space-y-4">
         <div className="space-y-2">
           <div className="boot-text">BACKROOM-GEN.EXE</div>
           <div className="text-gray-400">Version 1.0.0</div>
@@ -138,11 +177,19 @@ export default function Home() {
               WIKI.HTM
             </button>
           )}
+          {showLevelsWindow && (
+            <button 
+              className={`btn-98 !px-2 !py-1 text-xs !bg-gray-500`}
+              onClick={() => setShowLevelsWindow(!showLevelsWindow)}
+            >
+              MY_LEVELS.EXE
+            </button>
+          )}
         </div>
         
         <div className="flex items-center space-x-2 text-xs text-black">
           <div className="border border-gray-600 px-2 py-1 bg-gray-200">
-            {currentTime}
+            {mounted ? currentTime : '--:--'}
           </div>
         </div>
       </div>
@@ -151,7 +198,10 @@ export default function Home() {
       <div className="p-4 pb-12">
         {/* Desktop Icons */}
         <div className="absolute top-4 left-4 space-y-4">
-          <div className="flex flex-col items-center space-y-1 w-20 cursor-pointer hover:bg-blue-600 hover:bg-opacity-20 p-1 rounded">
+          <div 
+            className="flex flex-col items-center space-y-1 w-20 cursor-pointer hover:bg-blue-600 hover:bg-opacity-20 p-1 rounded"
+            onClick={() => setShowLevelsWindow(true)}
+          >
             <div className="w-8 h-8 bg-yellow-500 border border-black flex items-center justify-center">
               <span className="text-black text-xs">📁</span>
             </div>
@@ -181,10 +231,10 @@ export default function Home() {
 
         {/* Main Application Window */}
         {showMainWindow && (
-          <div className="flex justify-center items-start pt-8 relative z-10">
+          <div className={`flex justify-center relative z-10 ${hasGeneratedLevel ? 'items-start pt-8' : 'items-start pt-32'}`}>
             <Window98 
               title="BACKROOM-GEN.EXE - Spatial Anomaly Generator"
-              className="w-full max-w-6xl !bg-white relative z-10"
+              className={`w-full !bg-white relative z-10 ${hasGeneratedLevel ? 'max-w-6xl' : 'max-w-3xl'}`}
               minimizable
               maximizable
               onClose={() => setShowMainWindow(false)}
@@ -213,7 +263,7 @@ export default function Home() {
 
                 {/* Main Content */}
                 <div className="p-4 bg-white">
-                  <BackroomGenerator />
+                  <BackroomGenerator onLevelGenerated={() => setHasGeneratedLevel(true)} />
                 </div>
               </div>
             </Window98>
@@ -327,6 +377,59 @@ export default function Home() {
                     <p>For more information, access the BACKROOM-GEN.EXE application</p>
                   </div>
                 </div>
+              </div>
+            </Window98>
+          </div>
+        )}
+
+        {/* Levels Browser Window */}
+        {showLevelsWindow && (
+          <div className="flex justify-center items-start pt-24 relative z-10">
+            <Window98 
+              title="MY_LEVELS.EXE - File Explorer"
+              className="w-full max-w-4xl relative z-10"
+              minimizable
+              maximizable
+              onClose={() => setShowLevelsWindow(false)}
+            >
+              <div className="bg-white text-black p-4">
+                <div className="text-sm mb-4 text-gray-600 border-b border-gray-300 pb-2">
+                  📁 Saved Backroom Levels - Database Browser
+                </div>
+                
+                {levelsLoading ? (
+                  <div className="text-center text-gray-500 py-8">
+                    Loading levels from database...
+                  </div>
+                ) : savedLevels.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    No saved levels found. Generate and save some levels first!
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {savedLevels.map((level) => (
+                      <div key={level.id} className="border border-gray-300 p-3 hover:bg-gray-50 cursor-pointer">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="font-bold text-sm">{level.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {level.createdAt ? new Date(level.createdAt).toLocaleDateString() : 'Unknown date'}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-600 mb-2">
+                          Prompt: &quot;{level.prompt}&quot;
+                        </div>
+                        <div className="text-xs text-gray-700 line-clamp-2">
+                          {level.visualDescription}
+                        </div>
+                        {level.authorName && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            By: {level.authorName}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Window98>
           </div>

@@ -25,30 +25,60 @@ export interface DatabaseLevel {
   prompt: string;
 }
 
-// Save a level to the database
-export async function saveLevel(level: BackroomLevel, authorName?: string): Promise<string> {
+// Save a level to the database (upsert based on prompt)
+export async function saveLevel(level: BackroomLevel, authorName?: string): Promise<{ id: string; updated: boolean }> {
   try {
-    const { data, error } = await supabase
+    // First, check if a level with this prompt already exists
+    const { data: existingLevel, error: checkError } = await supabase
       .from('backroom_generator_levels')
-      .insert({
-        level_number: level.levelNumber,
-        name: level.name,
-        visual_description: level.visualDescription,
-        hazards: level.hazards,
-        lore: level.lore,
-        story_hook: level.storyHook,
-        image_url: level.imageUrl,
-        author_name: authorName,
-        prompt: level.prompt,
-      })
       .select('id')
-      .single();
+      .eq('prompt', level.prompt)
+      .maybeSingle();
 
-    if (error) {
-      throw error;
+    if (checkError) {
+      throw checkError;
     }
 
-    return data.id;
+    const levelData = {
+      level_number: level.levelNumber,
+      name: level.name,
+      visual_description: level.visualDescription,
+      hazards: level.hazards,
+      lore: level.lore,
+      story_hook: level.storyHook,
+      image_url: level.imageUrl,
+      author_name: authorName,
+      prompt: level.prompt,
+    };
+
+    if (existingLevel) {
+      // Update existing level
+      const { data, error } = await supabase
+        .from('backroom_generator_levels')
+        .update(levelData)
+        .eq('id', existingLevel.id)
+        .select('id')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return { id: data.id, updated: true };
+    } else {
+      // Insert new level
+      const { data, error } = await supabase
+        .from('backroom_generator_levels')
+        .insert(levelData)
+        .select('id')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return { id: data.id, updated: false };
+    }
   } catch (error) {
     console.error('Error saving level:', error);
     throw new Error('Failed to save level to database');

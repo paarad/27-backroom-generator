@@ -28,11 +28,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const levelId = await saveLevel(body.level, body.authorName);
+    const result = await saveLevel(body.level, body.authorName);
     
     return NextResponse.json({
       success: true,
-      id: levelId,
+      id: result.id,
+      updated: result.updated,
     });
   } catch (error) {
     console.error('Error saving level:', error);

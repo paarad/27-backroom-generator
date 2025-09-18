@@ -127,7 +127,7 @@ export function BackroomGenerator({ onLevelGenerated }: BackroomGeneratorProps) 
         throw new Error(data.error || 'Save failed');
       }
 
-      toast.success('Level saved to database');
+      toast.success(data.updated ? 'Level updated in database' : 'Level saved to database');
     } catch (error) {
       console.error('Save error:', error);
       toast.error(error instanceof Error ? error.message : 'Save failed');
