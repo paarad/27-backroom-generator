@@ -16,6 +16,7 @@ export default function Home() {
   const [levelsLoading, setLevelsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedLevel, setHasGeneratedLevel] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState<BackroomLevel | null>(null);
 
   useEffect(() => {
     // Set mounted to true after hydration
@@ -165,7 +166,13 @@ export default function Home() {
           <div className="w-px h-4 bg-gray-600" />
           <button 
             className={`btn-98 !px-2 !py-1 text-xs ${showMainWindow ? '!bg-gray-500' : ''}`}
-            onClick={() => setShowMainWindow(!showMainWindow)}
+            onClick={() => {
+              setShowMainWindow(!showMainWindow);
+              if (!showMainWindow && showLevelsWindow) {
+                setShowLevelsWindow(false);
+                setSelectedLevel(null);
+              }
+            }}
           >
             BACKROOM-GEN.EXE
           </button>
@@ -180,7 +187,12 @@ export default function Home() {
           {showLevelsWindow && (
             <button 
               className={`btn-98 !px-2 !py-1 text-xs !bg-gray-500`}
-              onClick={() => setShowLevelsWindow(!showLevelsWindow)}
+              onClick={() => {
+                setShowLevelsWindow(!showLevelsWindow);
+                if (!showLevelsWindow) {
+                  setSelectedLevel(null);
+                }
+              }}
             >
               MY_LEVELS.EXE
             </button>
@@ -200,7 +212,12 @@ export default function Home() {
         <div className="absolute top-4 left-4 space-y-4">
           <div 
             className="flex flex-col items-center space-y-1 w-20 cursor-pointer hover:bg-blue-600 hover:bg-opacity-20 p-1 rounded"
-            onClick={() => setShowLevelsWindow(true)}
+            onClick={() => {
+              setShowLevelsWindow(true);
+              if (showMainWindow) {
+                setShowMainWindow(false);
+              }
+            }}
           >
             <div className="w-8 h-8 bg-yellow-500 border border-black flex items-center justify-center">
               <span className="text-black text-xs">📁</span>
@@ -210,7 +227,13 @@ export default function Home() {
           
           <div 
             className="flex flex-col items-center space-y-1 w-20 cursor-pointer hover:bg-blue-600 hover:bg-opacity-20 p-1 rounded"
-            onClick={() => setShowMainWindow(true)}
+            onClick={() => {
+              setShowMainWindow(true);
+              if (showLevelsWindow) {
+                setShowLevelsWindow(false);
+                setSelectedLevel(null);
+              }
+            }}
           >
             <div className="w-8 h-8 bg-green-500 border border-black flex items-center justify-center">
               <span className="text-black text-xs font-bold">BR</span>
@@ -220,7 +243,16 @@ export default function Home() {
           
           <div 
             className="flex flex-col items-center space-y-1 w-20 cursor-pointer hover:bg-blue-600 hover:bg-opacity-20 p-1 rounded"
-            onClick={() => setShowWikiWindow(true)}
+            onClick={() => {
+              setShowWikiWindow(true);
+              if (showMainWindow) {
+                setShowMainWindow(false);
+              }
+              if (showLevelsWindow) {
+                setShowLevelsWindow(false);
+                setSelectedLevel(null);
+              }
+            }}
           >
             <div className="w-8 h-8 bg-blue-500 border border-black flex items-center justify-center">
               <span className="text-white text-xs font-bold">📖</span>
@@ -390,44 +422,128 @@ export default function Home() {
               className="w-full max-w-4xl relative z-10"
               minimizable
               maximizable
-              onClose={() => setShowLevelsWindow(false)}
+              onClose={() => {
+                setShowLevelsWindow(false);
+                setSelectedLevel(null);
+              }}
             >
               <div className="bg-white text-black p-4">
-                <div className="text-sm mb-4 text-gray-600 border-b border-gray-300 pb-2">
-                  📁 Saved Backroom Levels - Database Browser
-                </div>
-                
-                {levelsLoading ? (
-                  <div className="text-center text-gray-500 py-8">
-                    Loading levels from database...
-                  </div>
-                ) : savedLevels.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">
-                    No saved levels found. Generate and save some levels first!
+                {selectedLevel ? (
+                  // Detailed Level View
+                  <div>
+                    <div className="text-sm mb-4 text-gray-600 border-b border-gray-300 pb-2 flex items-center justify-between">
+                      <span>📄 Level Details</span>
+                      <button 
+                        onClick={() => setSelectedLevel(null)}
+                        className="btn-98 !px-2 !py-1 text-xs"
+                      >
+                        ← Back to List
+                      </button>
+                    </div>
+                    
+                    {/* Level Detail Content - Same as generator output */}
+                    <div className="space-y-6 text-sm leading-relaxed">
+                      {/* Header */}
+                      <div className="border-b border-gray-400 pb-3">
+                        <div className="text-xl font-bold">{selectedLevel.name}</div>
+                        <div className="text-gray-600 text-sm">
+                          CLASSIFICATION: SPATIAL ANOMALY | SOURCE: &ldquo;{selectedLevel.prompt}&rdquo;
+                        </div>
+                      </div>
+
+                      {/* Image */}
+                      {selectedLevel.imageUrl && (
+                        <div className="border-2 border-gray-400 p-3">
+                          <div className="text-sm text-gray-600 mb-3">VISUAL_DOCUMENTATION.JPG</div>
+                          <img
+                            src={selectedLevel.imageUrl}
+                            alt={selectedLevel.name}
+                            className="w-full max-w-md mx-auto border border-gray-300"
+                          />
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <div className="bg-gray-100 p-4 border border-gray-400 italic text-base leading-relaxed">
+                        {selectedLevel.visualDescription}
+                      </div>
+
+                      {/* Hazards */}
+                      <div>
+                        <h3 className="font-bold text-red-700 mb-2">⚠️ DOCUMENTED HAZARDS:</h3>
+                        <ul className="list-disc list-inside space-y-1 text-red-800">
+                          {selectedLevel.hazards.map((hazard, index) => (
+                            <li key={index}>{hazard}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Lore */}
+                      <div>
+                        <h3 className="font-bold mb-2">📜 DISCOVERY LOG:</h3>
+                        <p className="text-gray-700 leading-relaxed">{selectedLevel.lore}</p>
+                      </div>
+
+                      {/* Story Hook */}
+                      <div className="bg-yellow-50 p-4 border border-yellow-300">
+                        <h3 className="font-bold text-orange-800 mb-2">🎧 SURVIVOR TRANSMISSION:</h3>
+                        <p className="italic text-orange-900">&ldquo;{selectedLevel.storyHook}&rdquo;</p>
+                      </div>
+
+                      {/* Metadata */}
+                      <div className="text-xs text-gray-500 border-t border-gray-300 pt-3">
+                        <div>Created: {selectedLevel.createdAt ? new Date(selectedLevel.createdAt).toLocaleDateString() : 'Unknown'}</div>
+                        {selectedLevel.authorName && <div>Author: {selectedLevel.authorName}</div>}
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {savedLevels.map((level) => (
-                      <div key={level.id} className="border border-gray-300 p-3 hover:bg-gray-50 cursor-pointer">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="font-bold text-sm">{level.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {level.createdAt ? new Date(level.createdAt).toLocaleDateString() : 'Unknown date'}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-600 mb-2">
-                          Prompt: &quot;{level.prompt}&quot;
-                        </div>
-                        <div className="text-xs text-gray-700 line-clamp-2">
-                          {level.visualDescription}
-                        </div>
-                        {level.authorName && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            By: {level.authorName}
-                          </div>
-                        )}
+                  // List View
+                  <div>
+                    <div className="text-sm mb-4 text-gray-600 border-b border-gray-300 pb-2">
+                      📁 Saved Backroom Levels - Database Browser
+                    </div>
+                    
+                    {levelsLoading ? (
+                      <div className="text-center text-gray-500 py-8">
+                        Loading levels from database...
                       </div>
-                    ))}
+                    ) : savedLevels.length === 0 ? (
+                      <div className="text-center text-gray-500 py-8">
+                        No saved levels found. Generate and save some levels first!
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {savedLevels.map((level) => (
+                          <div 
+                            key={level.id} 
+                            className="border border-gray-300 p-3 hover:bg-gray-50 cursor-pointer"
+                            onClick={() => setSelectedLevel(level)}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="font-bold text-sm">{level.name}</div>
+                              <div className="text-xs text-gray-500">
+                                {level.createdAt ? new Date(level.createdAt).toLocaleDateString() : 'Unknown date'}
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 mb-2">
+                              Prompt: &quot;{level.prompt}&quot;
+                            </div>
+                            <div className="text-xs text-gray-700 line-clamp-2">
+                              {level.visualDescription}
+                            </div>
+                            {level.authorName && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                By: {level.authorName}
+                              </div>
+                            )}
+                            <div className="text-xs text-blue-600 mt-2">
+                              Click to view full details →
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
